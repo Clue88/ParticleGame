@@ -7,15 +7,15 @@ let requestID;
 let goButton = document.getElementById("goButton");
 
 let charges = [
-    new Charge(300, 300, 10, 0, 10, 10, "red"),
-    new Charge(300, 500, 10, 0, -10, 10, "blue")
+    new Charge(300, 300, 2, 0, 10, 10, "red"),
+    new Charge(300, 500, 2, 0, -10, 10, "blue")
 ];
 
 let clear = function () {
     ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 }
 
-let drawFrame = function () {
+let gameLoop = function () {
     window.cancelAnimationFrame(requestID);
     clear();
 
@@ -64,8 +64,6 @@ let drawFrame = function () {
         }
     }
 
-
-
     charges.forEach(charge => {
         charge.applyEField(ctx, charges);
         charge.applyBField(ctx, charges);
@@ -74,9 +72,49 @@ let drawFrame = function () {
     charges.forEach(charge => {
         charge.update();
         charge.draw(ctx);
-    })
+    });
 
-    requestID = window.requestAnimationFrame(drawFrame);
+    requestID = window.requestAnimationFrame(gameLoop);
 }
 
-goButton.addEventListener("click", drawFrame);
+let editLoop = function () {
+    window.cancelAnimationFrame(requestID);
+    clear();
+
+    charges.forEach(charge => {
+        charge.draw(ctx);
+    });
+
+    requestID = window.requestAnimationFrame(editLoop);
+}
+
+let onMouseDown = function (e) {
+    let mouseX = e.offsetX;
+    let mouseY = e.offsetY;
+
+    charges.forEach(charge => {
+        if (((mouseX - charge.x) ** 2 + (mouseY - charge.y) ** 2) < (15 ** 2)) {
+            charge.followMouse = true;
+        }
+    });
+}
+
+let onMouseUp = function (e) {
+    charges.forEach(charge => {
+        charge.followMouse = false;
+    });
+}
+
+let onMouseMove = function (e) {
+    charges.forEach(charge => {
+        if (charge.followMouse) {
+            charge.x = e.offsetX;
+            charge.y = e.offsetY;
+        }
+    });
+}
+
+c.addEventListener("mousedown", onMouseDown);
+c.addEventListener("mouseup", onMouseUp);
+c.addEventListener("mousemove", onMouseMove);
+goButton.addEventListener("click", gameLoop);
