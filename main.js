@@ -56,11 +56,11 @@ let gameLoop = function () {
         }
         if (q.y - 15 <= 0) {
             q.y = 15;
-            q.yx *= -1;
+            q.vy *= -1;
         }
         if (q.y + 15 >= c.clientHeight) {
             q.y = c.clientHeight - 15;
-            q.yx *= -1;
+            q.vy *= -1;
         }
     }
 
