@@ -14,6 +14,12 @@ export class Charge {
         this.ax = 0;
         this.ay = 0;
 
+        // false by default
+        this.positionEditable = true;
+        this.velocityEditable = true;
+        this.chargeEditable = true;
+        this.massEditable = true;
+
         this.followMouse = false;
     }
 

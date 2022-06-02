@@ -5,14 +5,59 @@ let ctx = c.getContext("2d");
 let requestID;
 
 let goButton = document.getElementById("goButton");
+let editButton = document.getElementById("editButton");
+let particleInfo = document.getElementById("particleInfo");
 
 let charges = [
     new Charge(300, 300, 2, 0, 10, 10, "red"),
     new Charge(300, 500, 2, 0, -10, 10, "blue")
 ];
 
+for (let i = 0; i < charges.length; i++) {
+    let chargeInfo = document.createElement("div");
+    chargeInfo.classList.add("my-4");
+
+    let header = document.createElement("p");
+    header.appendChild(document.createTextNode(`Charge ${i + 1}`));
+    header.setAttribute("style", "font-weight: bold");
+    chargeInfo.appendChild(header);
+
+    let veloXGroup = document.createElement("fieldset");
+    veloXGroup.disabled = !charges[i].velocityEditable;
+    veloXGroup.classList.add("form-group");
+    veloXGroup.innerHTML = `Velocity X: <input type="number" id="velox${i}" class="form-control" value=${charges[i].vx}>`;
+    chargeInfo.appendChild(veloXGroup);
+
+    let veloYGroup = document.createElement("fieldset");
+    veloYGroup.disabled = !charges[i].velocityEditable;
+    veloYGroup.classList.add("form-group");
+    veloYGroup.innerHTML = `Velocity Y: <input type="number" id="veloy${i}" class="form-control" value=${charges[i].vy}>`;
+    chargeInfo.appendChild(veloYGroup);
+
+    let chargeGroup = document.createElement("fieldset");
+    chargeGroup.disabled = !charges[i].chargeEditable;
+    chargeGroup.classList.add("form-group");
+    chargeGroup.innerHTML = `Charge: <input type="number" id="charge${i}" class="form-control" value=${charges[i].q}>`;
+    chargeInfo.appendChild(chargeGroup);
+
+    let massGroup = document.createElement("fieldset");
+    massGroup.disabled = !charges[i].massEditable;
+    massGroup.classList.add("form-group");
+    massGroup.innerHTML = `Mass: <input type="number" id="mass${i}" class="form-control" value=${charges[i].m}>`;
+    chargeInfo.appendChild(massGroup);
+
+    particleInfo.appendChild(chargeInfo);
+}
+
 let clear = function () {
     ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+}
+
+let resetLevel = function () {
+    charges = [
+        new Charge(300, 300, 2, 0, 10, 10, "red"),
+        new Charge(300, 500, 2, 0, -10, 10, "blue")
+    ];
 }
 
 let gameLoop = function () {
@@ -107,14 +152,42 @@ let onMouseUp = function (e) {
 
 let onMouseMove = function (e) {
     charges.forEach(charge => {
-        if (charge.followMouse) {
+        if (charge.followMouse && charge.positionEditable) {
             charge.x = e.offsetX;
             charge.y = e.offsetY;
         }
     });
 }
 
-c.addEventListener("mousedown", onMouseDown);
-c.addEventListener("mouseup", onMouseUp);
-c.addEventListener("mousemove", onMouseMove);
-goButton.addEventListener("click", gameLoop);
+let startGame = function (e) {
+    c.removeEventListener("mousedown", onMouseDown);
+    c.removeEventListener("mouseup", onMouseUp);
+    c.removeEventListener("mousemove", onMouseMove);
+    particleInfo.style.display = "none";
+
+    for (let i = 0; i < charges.length; i++) {
+        charges[i].vx = parseInt(document.getElementById(`velox${i}`).value);
+        charges[i].vy = parseInt(document.getElementById(`veloy${i}`).value);
+        charges[i].q = parseInt(document.getElementById(`charge${i}`).value);
+        charges[i].m = parseInt(document.getElementById(`mass${i}`).value);
+    }
+
+    // apply new changes
+
+    gameLoop();
+}
+
+let editGame = function (e) {
+    resetLevel();
+    c.addEventListener("mousedown", onMouseDown);
+    c.addEventListener("mouseup", onMouseUp);
+    c.addEventListener("mousemove", onMouseMove);
+    particleInfo.style.display = "block";
+
+    editLoop();
+}
+
+goButton.addEventListener("click", startGame);
+editButton.addEventListener("click", editGame);
+
+editGame();
