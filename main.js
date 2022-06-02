@@ -9,16 +9,21 @@ let editButton = document.getElementById("editButton");
 let particleInfo = document.getElementById("particleInfo");
 
 let charges = [
-    new Charge(300, 300, 2, 0, 10, 10, "red"),
-    new Charge(300, 500, 2, 0, -10, 10, "blue")
+    new Charge(300, 300, 2, 0, 10, 10, "red", true, true, false, false, true),
+    new Charge(300, 500, 2, 0, -10, 10, "blue", false, false, true, false, false)
 ];
+
+let endX = 20;
+let endY = 50;
+let endWidth = 50;
+let endHeight = 50;
 
 for (let i = 0; i < charges.length; i++) {
     let chargeInfo = document.createElement("div");
     chargeInfo.classList.add("my-4");
 
     let header = document.createElement("p");
-    header.appendChild(document.createTextNode(`Charge ${i + 1}`));
+    header.appendChild(document.createTextNode(`Charge ${i + 1}:`));
     header.setAttribute("style", "font-weight: bold");
     chargeInfo.appendChild(header);
 
@@ -55,14 +60,26 @@ let clear = function () {
 
 let resetLevel = function () {
     charges = [
-        new Charge(300, 300, 2, 0, 10, 10, "red"),
-        new Charge(300, 500, 2, 0, -10, 10, "blue")
+        new Charge(300, 300, 2, 0, 10, 10, "red", true, true, false, false, true),
+        new Charge(300, 500, 2, 0, -10, 10, "blue", false, false, true, false, false)
     ];
+}
+
+let checkWin = function (charge) {
+    let xClosest = Math.max(endX, Math.min(charge.x, endX + endWidth));
+    let yClosest = Math.max(endY, Math.min(charge.y, endY + endHeight));
+
+    let distX = xClosest - charge.x;
+    let distY = yClosest - charge.y;
+    return (distX ** 2 + distY ** 2) <= 15 ** 2;
 }
 
 let gameLoop = function () {
     window.cancelAnimationFrame(requestID);
     clear();
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(endX, endY, endWidth, endHeight);
 
     for (let i = 0; i < charges.length; i++) {
         for (let j = i + 1; j < charges.length; j++) {
@@ -119,12 +136,22 @@ let gameLoop = function () {
         charge.draw(ctx);
     });
 
+    for (let i = 0; i < charges.length; i++) {
+        if (charges[i].isUserParticle && checkWin(charges[i])) {
+            window.cancelAnimationFrame(requestID);
+            return;
+        }
+    }
+
     requestID = window.requestAnimationFrame(gameLoop);
 }
 
 let editLoop = function () {
     window.cancelAnimationFrame(requestID);
     clear();
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(endX, endY, endWidth, endHeight);
 
     charges.forEach(charge => {
         charge.draw(ctx);
@@ -171,8 +198,6 @@ let startGame = function (e) {
         charges[i].q = parseInt(document.getElementById(`charge${i}`).value);
         charges[i].m = parseInt(document.getElementById(`mass${i}`).value);
     }
-
-    // apply new changes
 
     gameLoop();
 }

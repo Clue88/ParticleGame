@@ -1,5 +1,5 @@
 export class Charge {
-    constructor(x, y, vx, vy, q, m, color) {
+    constructor(x, y, vx, vy, q, m, color, positionEditable, velocityEditable, chargeEditable, massEditable, isUserParticle) {
         this.econst = 10; // electric constant
         this.bconst = 0.5; // magnetic constant
 
@@ -15,10 +15,12 @@ export class Charge {
         this.ay = 0;
 
         // false by default
-        this.positionEditable = true;
-        this.velocityEditable = true;
-        this.chargeEditable = true;
-        this.massEditable = true;
+        this.positionEditable = positionEditable;
+        this.velocityEditable = velocityEditable;
+        this.chargeEditable = chargeEditable;
+        this.massEditable = massEditable;
+
+        this.isUserParticle = isUserParticle;
 
         this.followMouse = false;
     }
