@@ -1,4 +1,5 @@
-import { Charge } from "./modules/charge.js"
+import { Charge } from "./modules/charge.js";
+import { Level } from "./modules/level.js";
 
 let c = document.getElementById("canvas");
 let ctx = c.getContext("2d");
@@ -8,61 +9,76 @@ let goButton = document.getElementById("goButton");
 let editButton = document.getElementById("editButton");
 let particleInfo = document.getElementById("particleInfo");
 
-let charges = [
-    new Charge(300, 300, 2, 0, 10, 10, "red", true, true, false, false, true),
-    new Charge(300, 500, 2, 0, -10, 10, "blue", false, false, true, false, false)
+let levels = [
+    new Level([
+        new Charge(300, 300, 2, 0, 10, 10, "red", false, true, false, false, true),
+        new Charge(300, 500, 2, 0, -10, 10, "blue", true, false, true, false, false)
+    ], 400, 300, 50, 50),
+    new Level([
+        new Charge(300, 300, 2, 0, 10, 10, "red", false, true, false, false, true),
+        new Charge(300, 500, 2, 0, -10, 10, "blue", true, false, true, false, false),
+        new Charge(300, 550, 2, 0, -10, 10, "magenta", true, false, true, false, false)
+    ], 30, 50, 500, 50)
 ];
+let currentLevel = 0;
 
-let endX = 20;
-let endY = 50;
-let endWidth = 50;
-let endHeight = 50;
-
-for (let i = 0; i < charges.length; i++) {
-    let chargeInfo = document.createElement("div");
-    chargeInfo.classList.add("my-4");
-
-    let header = document.createElement("p");
-    header.appendChild(document.createTextNode(`Charge ${i + 1}:`));
-    header.setAttribute("style", "font-weight: bold");
-    chargeInfo.appendChild(header);
-
-    let veloXGroup = document.createElement("fieldset");
-    veloXGroup.disabled = !charges[i].velocityEditable;
-    veloXGroup.classList.add("form-group");
-    veloXGroup.innerHTML = `Velocity X: <input type="number" id="velox${i}" class="form-control" value=${charges[i].vx}>`;
-    chargeInfo.appendChild(veloXGroup);
-
-    let veloYGroup = document.createElement("fieldset");
-    veloYGroup.disabled = !charges[i].velocityEditable;
-    veloYGroup.classList.add("form-group");
-    veloYGroup.innerHTML = `Velocity Y: <input type="number" id="veloy${i}" class="form-control" value=${charges[i].vy}>`;
-    chargeInfo.appendChild(veloYGroup);
-
-    let chargeGroup = document.createElement("fieldset");
-    chargeGroup.disabled = !charges[i].chargeEditable;
-    chargeGroup.classList.add("form-group");
-    chargeGroup.innerHTML = `Charge: <input type="number" id="charge${i}" class="form-control" value=${charges[i].q}>`;
-    chargeInfo.appendChild(chargeGroup);
-
-    let massGroup = document.createElement("fieldset");
-    massGroup.disabled = !charges[i].massEditable;
-    massGroup.classList.add("form-group");
-    massGroup.innerHTML = `Mass: <input type="number" id="mass${i}" class="form-control" value=${charges[i].m}>`;
-    chargeInfo.appendChild(massGroup);
-
-    particleInfo.appendChild(chargeInfo);
-}
+let charges;
+let endX;
+let endY;
+let endWidth;
+let endHeight;
 
 let clear = function () {
     ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 }
 
 let resetLevel = function () {
-    charges = [
-        new Charge(300, 300, 2, 0, 10, 10, "red", true, true, false, false, true),
-        new Charge(300, 500, 2, 0, -10, 10, "blue", false, false, true, false, false)
-    ];
+    charges = levels[currentLevel].charges.map(charge => {
+        return Object.assign(Object.create(Object.getPrototypeOf(charge)), charge);
+    });
+    endX = levels[currentLevel].endX;
+    endY = levels[currentLevel].endY;
+    endWidth = levels[currentLevel].endWidth;
+    endHeight = levels[currentLevel].endHeight;
+
+    while (particleInfo.firstChild) {
+        particleInfo.removeChild(particleInfo.firstChild);
+    }
+    for (let i = 0; i < charges.length; i++) {
+        let chargeInfo = document.createElement("div");
+        chargeInfo.classList.add("my-4");
+
+        let header = document.createElement("p");
+        header.appendChild(document.createTextNode(`Charge ${i + 1}:`));
+        header.setAttribute("style", "font-weight: bold");
+        chargeInfo.appendChild(header);
+
+        let veloXGroup = document.createElement("fieldset");
+        veloXGroup.disabled = !charges[i].velocityEditable;
+        veloXGroup.classList.add("form-group");
+        veloXGroup.innerHTML = `Velocity X: <input type="number" id="velox${i}" class="form-control" value=${charges[i].vx}>`;
+        chargeInfo.appendChild(veloXGroup);
+
+        let veloYGroup = document.createElement("fieldset");
+        veloYGroup.disabled = !charges[i].velocityEditable;
+        veloYGroup.classList.add("form-group");
+        veloYGroup.innerHTML = `Velocity Y: <input type="number" id="veloy${i}" class="form-control" value=${charges[i].vy}>`;
+        chargeInfo.appendChild(veloYGroup);
+
+        let chargeGroup = document.createElement("fieldset");
+        chargeGroup.disabled = !charges[i].chargeEditable;
+        chargeGroup.classList.add("form-group");
+        chargeGroup.innerHTML = `Charge: <input type="number" id="charge${i}" class="form-control" value=${charges[i].q}>`;
+        chargeInfo.appendChild(chargeGroup);
+
+        let massGroup = document.createElement("fieldset");
+        massGroup.disabled = !charges[i].massEditable;
+        massGroup.classList.add("form-group");
+        massGroup.innerHTML = `Mass: <input type="number" id="mass${i}" class="form-control" value=${charges[i].m}>`;
+        chargeInfo.appendChild(massGroup);
+
+        particleInfo.appendChild(chargeInfo);
+    }
 }
 
 let checkWin = function (charge) {
@@ -139,6 +155,23 @@ let gameLoop = function () {
     for (let i = 0; i < charges.length; i++) {
         if (charges[i].isUserParticle && checkWin(charges[i])) {
             window.cancelAnimationFrame(requestID);
+            currentLevel++;
+            if (currentLevel >= levels.length) {
+                swal({
+                    title: "You beat the game!",
+                    icon: "success",
+                    button: "YAY",
+                });
+                return;
+            }
+            resetLevel();
+            swal({
+                title: `You beat level ${currentLevel}!`,
+                text: "Press Next to continue.",
+                icon: "success",
+                button: "Next",
+            });
+            editGame();
             return;
         }
     }
@@ -215,4 +248,5 @@ let editGame = function (e) {
 goButton.addEventListener("click", startGame);
 editButton.addEventListener("click", editGame);
 
+resetLevel();
 editGame();
