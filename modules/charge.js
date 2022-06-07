@@ -1,7 +1,7 @@
 export class Charge {
     constructor(x, y, vx, vy, q, m, color, positionEditable, velocityEditable, chargeEditable, massEditable, isUserParticle) {
         this.econst = 10; // electric constant
-        this.bconst = 0.5; // magnetic constant
+        this.bconst = 2; // magnetic constant
 
         this.x = x;
         this.y = y;

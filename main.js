@@ -10,10 +10,22 @@ let editButton = document.getElementById("editButton");
 let particleInfo = document.getElementById("particleInfo");
 
 let levels = [
+    // new Level([
+    //     new Charge(200, 350, 5, 0, 10, 10, "green", false, true, true, true, true),
+    // ], 800, 0, 100, 700),
+    // new Level([
+    //     new Charge(200, 350, 0, 0, 10, 10, "green", false, false, false, false, true),
+    //     new Charge(450, 350, 0, 0, 30, 10, "black", true, false, false, false, false),
+    // ], 800, 0, 100, 700),
+    // new Level([
+    //     new Charge(200, 350, 2, 0, 20, 10, "green", false, false, false, false, true),
+    //     new Charge(300, 500, -2, 0, -20, 10, "black", true, false, false, false, false),
+    // ], 0, 0, 900, 50),
     new Level([
-        new Charge(300, 300, 2, 0, 10, 10, "red", false, true, false, false, true),
-        new Charge(300, 500, 2, 0, -10, 10, "blue", true, false, true, false, false)
-    ], 400, 300, 50, 50),
+        new Charge(100, 600, 2, 0, 10, 10, "green", false, false, false, false, true),
+        new Charge(300, 500, 0, 0, -10, 100000, "black", true, false, true, false, false),
+        new Charge(300, 550, -2, 0, -10, 10, "black", true, false, true, false, false)
+    ], 0, 0, 500, 50),
     new Level([
         new Charge(300, 300, 2, 0, 10, 10, "red", false, true, false, false, true),
         new Charge(300, 500, 2, 0, -10, 10, "blue", true, false, true, false, false),
@@ -121,24 +133,6 @@ let gameLoop = function () {
             q2.x += (q2.x - q1.x) * adj;
             q2.y += (q2.y - q1.y) * adj;
 
-        }
-
-        let q = charges[i];
-        if (q.x - 15 <= 0) {
-            q.x = 15;
-            q.vx *= -1;
-        }
-        if (q.x + 15 >= c.clientWidth) {
-            q.x = c.clientWidth - 15;
-            q.vx *= -1;
-        }
-        if (q.y - 15 <= 0) {
-            q.y = 15;
-            q.vy *= -1;
-        }
-        if (q.y + 15 >= c.clientHeight) {
-            q.y = c.clientHeight - 15;
-            q.vy *= -1;
         }
     }
 
@@ -250,3 +244,8 @@ editButton.addEventListener("click", editGame);
 
 resetLevel();
 editGame();
+// swal({
+//     title: `Welcome to ParticleGame!`,
+//     text: "[Instructions]",
+//     button: "Let's go!",
+// });
