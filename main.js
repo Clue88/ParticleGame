@@ -7,30 +7,54 @@ let requestID;
 
 let goButton = document.getElementById("goButton");
 let editButton = document.getElementById("editButton");
+let resetButton = document.getElementById("resetButton");
 let particleInfo = document.getElementById("particleInfo");
 
 let levels = [
-    // new Level([
-    //     new Charge(200, 350, 5, 0, 10, 10, "green", false, true, true, true, true),
-    // ], 800, 0, 100, 700),
-    // new Level([
-    //     new Charge(200, 350, 0, 0, 10, 10, "green", false, false, false, false, true),
-    //     new Charge(450, 350, 0, 0, 30, 10, "black", true, false, false, false, false),
-    // ], 800, 0, 100, 700),
-    // new Level([
-    //     new Charge(200, 350, 2, 0, 20, 10, "green", false, false, false, false, true),
-    //     new Charge(300, 500, -2, 0, -20, 10, "black", true, false, false, false, false),
-    // ], 0, 0, 900, 50),
+    new Level([
+        new Charge(200, 350, 5, 0, 10, 10, "green", false, true, true, true, true),
+    ], 800, 0, 100, 700),
+    new Level([
+        new Charge(200, 350, 0, 0, 10, 10, "green", false, false, false, false, true),
+        new Charge(450, 350, 0, 0, 30, 10, "black", true, false, false, false, false),
+    ], 800, 0, 100, 700),
+    new Level([
+        new Charge(200, 350, 2, 0, 20, 10, "green", false, false, false, false, true),
+        new Charge(300, 500, -2, 0, -20, 10, "black", true, false, false, false, false),
+    ], 0, 0, 900, 50),
+    new Level([
+        new Charge(100, 450, 2, 0, 10, 10, "green", false, true, false, false, true),
+        new Charge(300, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(330, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(360, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(390, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(420, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(450, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(480, 400, 0, 0, -10, 100000, "black", false, false, false, false, false),
+        new Charge(300, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(330, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(360, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(390, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(420, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(450, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+        new Charge(480, 500, 0, 0, 10, 100000, "black", false, false, false, false, false),
+    ], 850, 0, 50, 700),
     new Level([
         new Charge(100, 600, 2, 0, 10, 10, "green", false, false, false, false, true),
         new Charge(300, 500, 0, 0, -10, 100000, "black", true, false, true, false, false),
         new Charge(300, 550, -2, 0, -10, 10, "black", true, false, true, false, false)
     ], 0, 0, 500, 50),
     new Level([
-        new Charge(300, 300, 2, 0, 10, 10, "red", false, true, false, false, true),
-        new Charge(300, 500, 2, 0, -10, 10, "blue", true, false, true, false, false),
-        new Charge(300, 550, 2, 0, -10, 10, "magenta", true, false, true, false, false)
-    ], 30, 50, 500, 50)
+        new Charge(450, 450, 2, 0, 10, 10, "green", false, false, false, false, true),
+        new Charge(450, 350, 0, 0, -40, 1000000000, "black", false, false, false, false, false),
+        new Charge(600, 600, 0, 0, 5, 10, "black", true, true, false, false, false),
+    ], 0, 0, 900, 50),
+    new Level([
+        new Charge(450, 350, 0, 0, 10, 10, "green", false, false, false, false, true),
+        new Charge(300, 350, 0, 0, 10, 10, "black", false, true, true, true, false),
+        new Charge(600, 350, 0, 0, 10, 10, "black", false, true, true, true, false),
+        new Charge(450, 200, 0, 0, 10, 10, "black", false, true, true, true, false),
+    ], 400, 0, 100, 50),
 ];
 let currentLevel = 0;
 
@@ -40,8 +64,16 @@ let endY;
 let endWidth;
 let endHeight;
 
+let savedCharges
+
 let clear = function () {
     ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+}
+
+let saveConfig = function () {
+    savedCharges = charges.map(charge => {
+        return Object.assign(Object.create(Object.getPrototypeOf(charge)), charge);
+    });
 }
 
 let resetLevel = function () {
@@ -59,6 +91,7 @@ let resetLevel = function () {
     for (let i = 0; i < charges.length; i++) {
         let chargeInfo = document.createElement("div");
         chargeInfo.classList.add("my-4");
+        chargeInfo.id = `charge-info${i}`;
 
         let header = document.createElement("p");
         header.appendChild(document.createTextNode(`Charge ${i + 1}:`));
@@ -191,11 +224,22 @@ let onMouseDown = function (e) {
     let mouseX = e.offsetX;
     let mouseY = e.offsetY;
 
-    charges.forEach(charge => {
+    let foundCharge = false;
+    for (let i = 0; i < charges.length; i++) {
+        let charge = charges[i];
         if (((mouseX - charge.x) ** 2 + (mouseY - charge.y) ** 2) < (15 ** 2)) {
             charge.followMouse = true;
+            document.getElementById(`charge-info${i}`).style.display = "block";
+            foundCharge = true;
+        } else {
+            document.getElementById(`charge-info${i}`).style.display = "none";
         }
-    });
+    }
+    if (!foundCharge) {
+        for (let i = 0; i < charges.length; i++) {
+            document.getElementById(`charge-info${i}`).style.display = "block";
+        }
+    }
 }
 
 let onMouseUp = function (e) {
@@ -226,23 +270,35 @@ let startGame = function (e) {
         charges[i].m = parseInt(document.getElementById(`mass${i}`).value);
     }
 
+    saveConfig();
     gameLoop();
 }
 
 let editGame = function (e) {
-    resetLevel();
+    charges = savedCharges;
     c.addEventListener("mousedown", onMouseDown);
     c.addEventListener("mouseup", onMouseUp);
     c.addEventListener("mousemove", onMouseMove);
     particleInfo.style.display = "block";
 
+    for (let i = 0; i < charges.length; i++) {
+        document.getElementById(`charge-info${i}`).style.display = "block";
+    }
+
     editLoop();
+}
+
+let resetGame = function (e) {
+    resetLevel();
+    editGame(e);
 }
 
 goButton.addEventListener("click", startGame);
 editButton.addEventListener("click", editGame);
+resetButton.addEventListener("click", resetGame);
 
 resetLevel();
+saveConfig();
 editGame();
 // swal({
 //     title: `Welcome to ParticleGame!`,
