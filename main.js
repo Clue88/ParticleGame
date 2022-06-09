@@ -15,7 +15,7 @@ let levels = [
         new Charge(200, 350, 5, 0, 10, 10, "green", false, true, true, true, true),
     ], 800, 0, 100, 700),
     new Level([
-        new Charge(200, 350, 0, 0, 10, 10, "green", false, false, false, false, true),
+        new Charge(200, 350, 1, 0, 10, 10, "green", false, false, false, false, true),
         new Charge(450, 350, 0, 0, 30, 10, "black", true, false, false, false, false),
     ], 800, 0, 100, 700),
     new Level([
@@ -80,6 +80,8 @@ let resetLevel = function () {
     charges = levels[currentLevel].charges.map(charge => {
         return Object.assign(Object.create(Object.getPrototypeOf(charge)), charge);
     });
+    saveConfig();
+
     endX = levels[currentLevel].endX;
     endY = levels[currentLevel].endY;
     endWidth = levels[currentLevel].endWidth;
@@ -94,7 +96,8 @@ let resetLevel = function () {
         chargeInfo.id = `charge-info${i}`;
 
         let header = document.createElement("p");
-        header.appendChild(document.createTextNode(`Charge ${i + 1}:`));
+        let status = charges[i].positionEditable ? "Moveable" : "Stationary";
+        header.appendChild(document.createTextNode(`Charge ${i + 1} (${status}):`));
         header.setAttribute("style", "font-weight: bold");
         chargeInfo.appendChild(header);
 
@@ -124,6 +127,7 @@ let resetLevel = function () {
 
         particleInfo.appendChild(chargeInfo);
     }
+    console.log(charges)
 }
 
 let checkWin = function (charge) {
@@ -228,11 +232,17 @@ let onMouseDown = function (e) {
     for (let i = 0; i < charges.length; i++) {
         let charge = charges[i];
         if (((mouseX - charge.x) ** 2 + (mouseY - charge.y) ** 2) < (15 ** 2)) {
+            console.log("found particle")
             charge.followMouse = true;
             document.getElementById(`charge-info${i}`).style.display = "block";
             foundCharge = true;
         } else {
             document.getElementById(`charge-info${i}`).style.display = "none";
+        }
+
+        if(((mouseX - (charge.x + charge.vx * 50)) ** 2 + (mouseY - (charge.y + charge.vy * 50)) ** 2) < (10 ** 2)){
+            console.log("found vector")
+            charge.arrowFollowMouse = true;
         }
     }
     if (!foundCharge) {
@@ -245,16 +255,27 @@ let onMouseDown = function (e) {
 let onMouseUp = function (e) {
     charges.forEach(charge => {
         charge.followMouse = false;
+        charge.arrowFollowMouse = false
     });
 }
 
 let onMouseMove = function (e) {
-    charges.forEach(charge => {
+
+    for(let i = 0; i < charges.length; i++){
+        let charge = charges[i];
         if (charge.followMouse && charge.positionEditable) {
             charge.x = e.offsetX;
             charge.y = e.offsetY;
         }
-    });
+
+        if(charge.arrowFollowMouse && charge.velocityEditable){
+            charge.vx = (e.offsetX - charge.x) / 50;
+            charge.vy = (e.offsetY - charge.y) / 50;
+
+            document.getElementById(`velox${i}`).value = charge.vx
+            document.getElementById(`veloy${i}`).value = charge.vy
+        }
+    }
 }
 
 let startGame = function (e) {

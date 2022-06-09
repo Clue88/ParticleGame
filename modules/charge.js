@@ -2,6 +2,7 @@ export class Charge {
     constructor(x, y, vx, vy, q, m, color, positionEditable, velocityEditable, chargeEditable, massEditable, isUserParticle) {
         this.econst = 10; // electric constant
         this.bconst = 2; // magnetic constant
+        this.vectorConstant = 5000;
 
         this.x = x;
         this.y = y;
@@ -23,6 +24,8 @@ export class Charge {
         this.isUserParticle = isUserParticle;
 
         this.followMouse = false;
+        this.arrowFollowMouse = false;
+
     }
 
     applyEField(ctx, charges) {
@@ -39,8 +42,7 @@ export class Charge {
 
             // console.log("E", Fx, Fy);
 
-            let vectorConstant = 5000;
-            this.drawVector(ctx, this.x, this.y, this.x + vectorConstant * Fx, this.y + vectorConstant * Fy, 2, "green");
+            this.drawVector(ctx, this.x, this.y, this.x + this.vectorConstant * Fx, this.y + this.vectorConstant * Fy, 2, "green");
 
             this.ax += Fx / this.m;
             this.ay += Fy / this.m;
@@ -63,8 +65,7 @@ export class Charge {
 
             // console.log("B", Fx, Fy);
 
-            let vectorConstant = 10000;
-            this.drawVector(ctx, this.x, this.y, this.x + vectorConstant * Fx, this.y + vectorConstant * Fy, 2, "blue");
+            this.drawVector(ctx, this.x, this.y, this.x + this.vectorConstant * Fx, this.y + this.vectorConstant * Fy, 2, "blue");
 
             this.ax += Fx / this.m;
             this.ay += Fy / this.m;
